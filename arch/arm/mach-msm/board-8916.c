@@ -64,6 +64,21 @@ void __init msm8916_add_drivers(void)
 	msm_pm_sleep_status_init();
 }
 
+#ifdef CONFIG_MACH_SAMSUNG
+struct class *sec_class;
+EXPORT_SYMBOL(sec_class);
+
+static void samsung_sys_class_init(void)
+{
+	sec_class = class_create(THIS_MODULE, "sec");
+
+	if (IS_ERR(sec_class)) {
+		pr_err("Failed to create class(sec)!\n");
+		return;
+	}
+};
+#endif
+
 static void __init msm8916_init(void)
 {
 	struct of_dev_auxdata *adata = msm8916_auxdata_lookup;
@@ -82,6 +97,11 @@ static void __init msm8916_init(void)
 	 * msm_smem_init before it.
 	 */
 	of_platform_populate(NULL, of_default_bus_match_table, adata, NULL);
+
+#ifdef CONFIG_MACH_SAMSUNG
+	samsung_sys_class_init();
+#endif
+
 	msm_smem_init();
 
 	if (socinfo_init() < 0)
