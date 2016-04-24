@@ -1,0 +1,16 @@
+# Samsung configuration options
+
+config MACH_SAMSUNG
+	bool "Samsung device"
+	depends on ARCH_MSM
+	help
+	  Support for Samsung products
+
+menu "Samsung features"
+
+config EXTEND_SERIAL_NUM_16
+	bool "Extended serial number (16 digits)"
+	default n
+
+endmenu
+
