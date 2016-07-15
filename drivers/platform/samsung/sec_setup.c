@@ -43,4 +43,4 @@ static int __init msm_hw_rev_setup(char *p)
 	system_rev = memparse(p, NULL);
 	return 0;
 }
-early_param("samsung.board_rev", msm_hw_rev_setup);
+early_param("androidboot.revision", msm_hw_rev_setup);
