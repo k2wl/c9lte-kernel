@@ -15,7 +15,7 @@
 
 
 #include <asm/setup.h>
-#include <asm/system_info.h>
+#include <system_info.h>
 
 #include <linux/export.h>
 #include <linux/init.h>
