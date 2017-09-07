@@ -480,19 +480,6 @@ static ssize_t front_camera_info_store(struct device *dev,
 }
 #endif
 
-#define FROM_MODULE_ID_SIZE	10
-uint8_t rear_module_id[FROM_MODULE_ID_SIZE + 1] = "\0";
-static ssize_t back_camera_moduleid_show(struct device *dev,
-			struct device_attribute *attr, char *buf)
-{
-	CDBG("[FW_DBG] rear_module_id : %c%c%c%c%c%02X%02X%02X%02X%02X\n",
-	  rear_module_id[0], rear_module_id[1], rear_module_id[2], rear_module_id[3], rear_module_id[4],
-	  rear_module_id[5], rear_module_id[6], rear_module_id[7], rear_module_id[8], rear_module_id[9]);
-	return sprintf(buf, "%c%c%c%c%c%02X%02X%02X%02X%02X\n",
-	  rear_module_id[0], rear_module_id[1], rear_module_id[2], rear_module_id[3], rear_module_id[4],
-	  rear_module_id[5], rear_module_id[6], rear_module_id[7], rear_module_id[8], rear_module_id[9]);
-}
-
 static DEVICE_ATTR(rear_camtype, S_IRUGO, back_camera_type_show, NULL);
 static DEVICE_ATTR(rear_camfw, S_IRUGO|S_IWUSR|S_IWGRP,
 		back_camera_firmware_show, back_camera_firmware_store);
@@ -533,7 +520,6 @@ static DEVICE_ATTR(rear_caminfo, S_IRUGO|S_IWUSR|S_IWGRP,
 static DEVICE_ATTR(front_caminfo, S_IRUGO|S_IWUSR|S_IWGRP,
 		front_camera_info_show, front_camera_info_store);
 #endif
-static DEVICE_ATTR(rear_moduleid, S_IRUGO, back_camera_moduleid_show, NULL);
 
 static int __init msm_sensor_init_module(void)
 {
@@ -547,9 +533,13 @@ static int __init msm_sensor_init_module(void)
 
 	/* Allocate memory for msm_sensor_init control structure */
 	s_init = kzalloc(sizeof(struct msm_sensor_init_t), GFP_KERNEL);
-	
+	if (!s_init) {
+		pr_err("failed: no memory s_init %pK", NULL);
+		return -ENOMEM;
+	}
 	if (!s_init) {
 		class_destroy(camera_class);
+		pr_err("failed: no memory s_init %p", NULL);
 		return -ENOMEM;
 	}
 
@@ -671,12 +661,6 @@ static int __init msm_sensor_init_module(void)
 		goto device_create_fail;
 	}
 #endif
-	if (device_create_file(cam_dev_back, &dev_attr_rear_moduleid) < 0) {
-		printk("Failed to create device file!(%s)!\n",
-			dev_attr_rear_moduleid.attr.name);
-		ret = -ENODEV;
-		goto device_create_fail;
-	}
 
 	cam_dev_front = device_create(camera_class, NULL,
 		2, NULL, "front");

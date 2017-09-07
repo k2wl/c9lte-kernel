@@ -927,11 +927,6 @@ static void msm_vfe40_cfg_framedrop(void __iomem *vfe_base,
 {
 	uint32_t i, temp;
 
-	if ((stream_info->current_framedrop_period ==
-		framedrop_period) &&
-		(stream_info->current_framedrop_pattern ==
-		framedrop_pattern)) 
-		return;
 	for (i = 0; i < stream_info->num_planes; i++) {
 		msm_camera_io_w(framedrop_pattern, vfe_base +
 			VFE40_WM_BASE(stream_info->wm[i]) + 0x1C);
@@ -943,8 +938,6 @@ static void msm_vfe40_cfg_framedrop(void __iomem *vfe_base,
 	}
 
 	msm_camera_io_w_mb(0x1, vfe_base + 0x378);
-	stream_info->current_framedrop_period = framedrop_period;
-	stream_info->current_framedrop_pattern = framedrop_pattern;
 }
 
 static void msm_vfe40_clear_framedrop(struct vfe_device *vfe_dev,
@@ -1116,7 +1109,7 @@ static int msm_vfe40_start_fetch_engine(struct vfe_device *vfe_dev,
 		rc = vfe_dev->buf_mgr->ops->get_buf_by_index(
 			vfe_dev->buf_mgr, bufq_handle, fe_cfg->buf_idx, &buf);
 		if (rc < 0 || !buf) {
-			pr_err("%s: No fetch buffer rc= %d buf= %p\n",
+			pr_err("%s: No fetch buffer rc= %d buf= %pK\n",
 				__func__, rc, buf);
 			return -EINVAL;
 		}

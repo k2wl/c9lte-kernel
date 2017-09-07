@@ -384,8 +384,6 @@ struct msm_vfe_axi_stream {
 	enum msm_stream_memory_input_t  memory_input;
 	struct msm_isp_sw_framskip sw_skip;
 	uint8_t sw_ping_pong_bit;
-	uint32_t current_framedrop_period;
-	uint32_t current_framedrop_pattern;
 };
 
 struct msm_vfe_axi_composite_info {

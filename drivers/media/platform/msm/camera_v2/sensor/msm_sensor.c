@@ -24,7 +24,6 @@
 
 #ifdef DISABLE_AFC
 #include <linux/muic/muic_afc.h>
-int32_t afc_checked_for_camera;
 #endif
 //#define CONFIG_MSMB_CAMERA_DEBUG
 #undef CDBG
@@ -468,12 +467,8 @@ int msm_sensor_power_down(struct msm_sensor_ctrl_t *s_ctrl)
 	sensor_device_type = s_ctrl->sensor_device_type;
 	sensor_i2c_client = s_ctrl->sensor_i2c_client;
 
-#ifdef DISABLE_AFC
-	camera_id = s_ctrl->sensordata->sensor_info->position;
-#endif
-
 	if (!power_info || !sensor_i2c_client) {
-		pr_err("%s:%d failed: power_info %p sensor_i2c_client %p\n",
+		pr_err("%s:%d failed: power_info %pK sensor_i2c_client %pK\n",
 			__func__, __LINE__, power_info, sensor_i2c_client);
 		return -EINVAL;
 	}
@@ -482,7 +477,6 @@ int msm_sensor_power_down(struct msm_sensor_ctrl_t *s_ctrl)
 	if(0==camera_id)
 	{
 		muic_check_afc_state(0);
-                afc_checked_for_camera = 0;
 	}
 #endif
 	return msm_camera_power_down(power_info, sensor_device_type,
@@ -543,7 +537,6 @@ int msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 			pr_err("%s:%d ERROR: AFC disable failed\n", __func__, __LINE__);
 			return -EINVAL;
 		}
-                afc_checked_for_camera = 1;
 	}
 #endif
 
@@ -557,9 +550,6 @@ int msm_sensor_power_up(struct msm_sensor_ctrl_t *s_ctrl)
 		if (rc < 0) {
 			msm_camera_power_down(power_info,
 				s_ctrl->sensor_device_type, sensor_i2c_client);
-#ifdef DISABLE_AFC
-                        afc_checked_for_camera = 0;
-#endif
 			msleep(20);
 			continue;
 		} else {
